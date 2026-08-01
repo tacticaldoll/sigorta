@@ -139,7 +139,7 @@ fn failed_probe_reopens_the_breaker() {
 }
 
 #[test]
-fn admission_during_an_outstanding_probe_probes_again() {
+fn admission_during_an_outstanding_probe_still_within_window_probes_again() {
     let (breaker, t0) = threshold_2_cooldown_10s();
     let breaker = breaker
         .record(Event::Failure, t0)
@@ -149,9 +149,41 @@ fn admission_during_an_outstanding_probe_probes_again() {
     };
     assert!(breaker.is_half_open());
 
+    // Probe issued at t0+10s with a 10s window: still live at t0+11s.
     match breaker.admit(t0 + Duration::from_secs(11)) {
         Decision::Probing(after) => assert!(after.is_half_open()),
         other => panic!("expected Probing again, got {other:?}"),
+    }
+}
+
+#[test]
+fn a_stale_outstanding_probe_is_replaced_with_a_fresh_one() {
+    let (breaker, t0) = threshold_2_cooldown_10s();
+    let breaker = breaker
+        .record(Event::Failure, t0)
+        .record(Event::Failure, t0);
+    let Decision::Probing(breaker) = breaker.admit(t0 + Duration::from_secs(10)) else {
+        panic!("expected Probing");
+    };
+    assert!(breaker.is_half_open());
+
+    // The probe issued at t0+10s never reported back. Its 10s window (the same
+    // open_duration) expires at t0+20s; a check at exactly that moment must not
+    // extend the same stale probe — it must issue a fresh one.
+    let breaker = match breaker.admit(t0 + Duration::from_secs(20)) {
+        Decision::Probing(after) => {
+            assert!(after.is_half_open());
+            after
+        }
+        other => panic!("expected a fresh Probing, got {other:?}"),
+    };
+
+    // The fresh probe's own window is renewed from t0+20s, not the original t0+10s:
+    // it must still be live at t0+29s (10s after being renewed, one second short of
+    // its own 10s window), not treated as stale again already.
+    match breaker.admit(t0 + Duration::from_secs(29)) {
+        Decision::Probing(after) => assert!(after.is_half_open()),
+        other => panic!("the renewed probe's own window must still be live, got {other:?}"),
     }
 }
 
