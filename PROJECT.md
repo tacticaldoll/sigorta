@@ -1,41 +1,45 @@
 # Project Contract
 
-Fill this file in during the first project-specific OpenSpec change. Keep it
-short and concrete; it is the orientation layer for humans and AI agents.
+Keep this short and concrete; it is the orientation layer for humans and AI agents.
 
 ## Purpose
 
-Describe what this project is for in one or two paragraphs.
+Sigorta is a thin, sans-I/O circuit-breaking core. Given an explicit clock reading and a
+caller-judged stream of success/failure events, it adjudicates whether to admit an
+attempt, admit it as a trial probe, or reject it with a retry-after duration. It owns
+exactly one breaker's state at a time; it does not own a keyed collection of many
+breakers, the system clock, or judgment about what counts as success or failure.
 
 ## Core Contract
 
-Name the behavior that must be protected first. Examples:
+The behavior that must be protected first:
 
-- a data lifecycle that must never lose or duplicate information
-- a protocol compatibility promise
-- a user-facing workflow that must remain coherent
-- a security or privacy invariant
+- **No ambient clock reads.** Every transition takes `now: Instant` explicitly.
+- **Single-instance ownership.** A `Sigorta` value is exactly one breaker.
+  Multi-instance management is entirely the caller's concern, never expressed inside
+  this crate.
+- **Ownership flows through the result.** `admit` consumes `self` and returns a
+  `Decision` whose variants carry the resulting `Sigorta` forward; `record` consumes
+  `self` and returns the resulting `Sigorta` directly.
+- **Closed judgment vocabulary.** `Event` is a plain, closed enum (`Success`,
+  `Failure`) supplied by the caller — never a trait the core uses to classify an
+  outcome itself.
 
 ## Terminology
 
-Define project-specific terms here. Prefer one canonical term over synonyms.
+- `Sigorta` — one breaker's configuration and state.
+- `Closed` / `Open` / `HalfOpen` — the three states (see `docs/naming.md` for why these
+  industry-standard names were kept rather than replaced with a themed register).
+- `Event` — a caller-judged outcome of one admitted attempt (`Success` or `Failure`).
+- `Decision` — the result of an admission check: `Admitted`, `Probing`, or `Rejected`.
+- `Probing` — an admission granted as the one outstanding trial after a cooldown
+  elapses, distinguished from a normal `Admitted` so the caller can treat it cautiously.
 
 ## First Project Change
 
-Start each derived project with an OpenSpec change named
-`initial-project-shape` unless a more specific first change is clearer.
-
-That change should:
-
-- replace placeholder project metadata
-- define the first project-specific specs
-- choose the crate layout
-- add the real Rust crate or crates
-- make the Rust Definition of Done runnable from the workspace root
-
-Before the first real crate exists, Rust build, test, lint, and format commands
-are not yet a meaningful Definition of Done. The first project-specific change
-is responsible for making them meaningful.
+`initial-project-shape` establishes the `sigorta-contract` crate and its
+circuit-breaking contract. See `openspec/specs/circuit-breaking/spec.md` for the full
+specification.
 
 ## Change Prioritization
 
