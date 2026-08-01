@@ -1,8 +1,8 @@
 ## 1. Fix
 
-- [ ] 1.1 Lower `rust-version` to `1.85` in `[workspace.package]`.
-- [ ] 1.2 Verify `cargo +1.85.0 build --workspace` succeeds.
-- [ ] 1.3 Add an `msrv` CI job (`dtolnay/rust-toolchain@1.85.0`,
+- [x] 1.1 Lower `rust-version` to `1.85` in `[workspace.package]`.
+- [x] 1.2 Verify `cargo +1.85.0 build --workspace` succeeds.
+- [x] 1.3 Add an `msrv` CI job (`dtolnay/rust-toolchain@1.85.0`,
       `cargo check --workspace --exclude sigorta-governance --all-targets`),
       matching the consumer application's own job.
 
