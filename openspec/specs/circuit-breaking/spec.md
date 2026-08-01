@@ -1,4 +1,10 @@
-## ADDED Requirements
+## Purpose
+
+A sans-I/O, single-instance circuit-breaking core that adjudicates whether to admit an
+attempt, admit it as a trial probe, or reject it with a retry-after duration, given an
+explicit clock reading and a caller-supplied stream of success/failure events.
+
+## Requirements
 
 ### Requirement: Explicit clock input
 The core SHALL require an explicit `now: Instant` argument for every state transition
