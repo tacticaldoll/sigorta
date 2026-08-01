@@ -1,48 +1,39 @@
-# rust-openspec-starter
+# Sigorta
 
-An opinionated starter for Rust projects that use OpenSpec, ADRs, conventional
-commits, and AI-agent-friendly governance from day one.
+A thin, sans-I/O circuit-breaking core for Rust: given an explicit clock reading and a
+caller-judged stream of success/failure events, it adjudicates whether to admit an
+attempt, admit it as a trial probe, or reject it with a retry-after duration.
 
-This repository is intentionally small. It provides the process skeleton for a
-new project, not product-specific architecture.
+`Sigorta` owns exactly one breaker's state at a time. It does not own a keyed
+collection of many breakers, the system clock, or judgment about what counts as
+success or failure — see `PROJECT.md` for the full Core Contract and Terminology, and
+`docs/naming.md` for why the state names are the industry-standard
+`Closed`/`Open`/`HalfOpen` rather than a themed register.
 
-## Use
+## Crates
 
-1. Create a new repository from this starter.
-2. Replace placeholder project metadata in `PROJECT.md`, `README.md`, and
-   `Cargo.toml`.
-3. Install or expose the OpenSpec CLI in your shell.
-4. Generate local agent shims for your editor or agent:
+- [`sigorta-contract`](crates/sigorta-contract) - the pure core: the state machine, its
+  transitions, and its decision vocabulary. Zero dependencies.
+- [`sigorta`](crates/sigorta) - the curated public entrypoint. A pure re-export of
+  `sigorta-contract`; depend on this one.
+- `sigorta-governance` - unpublished. Executable Tianheng architecture governance for
+  this workspace.
 
-   ```bash
-   openspec init --tools codex
-   # or: openspec init --tools claude,cursor,github-copilot
-   ```
+## Development
 
-5. Start the first project-specific change with OpenSpec:
+This repository uses OpenSpec (`AGENTS.md`) and Conventional Commits with
+squash-merged pull requests. See `AGENTS.md` and `docs/development-flow.md` for the
+full workflow, and `BACKLOG.md` for settled and deferred decisions.
 
-   ```bash
-   openspec new change "initial-project-shape"
-   ```
-
-   This change should replace placeholders, choose the real crate layout, add
-   the first specs, and make the Rust Definition of Done runnable.
-
-## Included
-
-- `AGENTS.md` - repository rules for AI coding agents and humans.
-- `PROJECT.md` - project-specific contract, terminology, and priorities.
-- `docs/development-flow.md` - short OpenSpec and commit checklist.
-- `docs/adr/` - architecture decision record skeleton.
-- `openspec/` - empty OpenSpec structure ready for specs and changes.
-- `CHANGELOG.md` - Keep a Changelog skeleton using this project's footer-link convention.
-- `scripts/changelog-guard.sh` - checks every CHANGELOG.md version heading has a matching footer link.
-- `.github/workflows/ci.yml` - runs the Rust Definition of Done and `cargo deny` once a real crate exists.
-- A Rust workspace policy anchor in `Cargo.toml`. It intentionally has no
-  crates until the first project-specific change chooses the real layout.
-
-Generated agent shims such as `.codex/` and `.claude/` are per-clone local
-files and should not be committed.
+```bash
+cargo build --workspace
+cargo test --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+cargo fmt --all --check
+RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
+cargo deny check
+cargo run -p sigorta-governance -- check --manifest-path Cargo.toml
+```
 
 ## License
 
