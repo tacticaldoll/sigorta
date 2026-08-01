@@ -10,6 +10,19 @@ cross-checked against the actual commit history rather than written from memory.
 version heading must have a matching `[X.Y.Z]: <url>` footer link — `scripts/changelog-guard.sh`
 checks this mechanically.
 
+## [0.1.3] - 2026-08-01
+
+Metadata correction, no code changes.
+
+### Fixed
+
+- The declared MSRV was `1.88`, copied from a sibling project's precedent without
+  verification. Lowered to `1.85` (edition 2024's own floor) — nothing in this
+  workspace needs anything newer. Caught by a real consumer's CI (its own MSRV is
+  `1.85`) during adoption.
+- Added an `msrv` CI job so a future drift like this fails here directly, instead
+  of only in a consumer.
+
 ## [0.1.2] - 2026-08-01
 
 Correctness fix, no public API changes. Adopting `sigorta` into the real consumer
@@ -67,6 +80,7 @@ this family's usual Tier 1 definition, recorded as a considered choice.
 - 9 unit tests covering every scenario in `openspec/specs/circuit-breaking/spec.md`,
   and a dependency-free dogfood example (`keyed_by_job_kind.rs`).
 
+[0.1.3]: https://github.com/tacticaldoll/sigorta/releases/tag/v0.1.3
 [0.1.2]: https://github.com/tacticaldoll/sigorta/releases/tag/v0.1.2
 [0.1.1]: https://github.com/tacticaldoll/sigorta/releases/tag/v0.1.1
 [0.1.0]: https://github.com/tacticaldoll/sigorta/releases/tag/v0.1.0
