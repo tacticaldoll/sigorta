@@ -55,5 +55,8 @@ own development. Shipped truth lives in `openspec/specs/`; active proposed truth
 
 ## Current Baseline
 
-Project shape not yet established. See `openspec/changes/initial-project-shape/` for
-the active change defining the first real crate and contract.
+`sigorta-contract` (the pure core) exists, tested, and dogfooded — see
+`openspec/specs/circuit-breaking/spec.md`. See
+`openspec/changes/add-facade-and-governance/` for the active change adding the
+`sigorta` facade, the `sigorta-governance` crate, and the metadata a crates.io
+publish needs.

@@ -1,5 +1,5 @@
 [package]
-name = "sigorta-contract"
+name = "sigorta"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -8,7 +8,8 @@ repository.workspace = true
 readme = "README.md"
 keywords.workspace = true
 categories.workspace = true
-description = "A sans-I/O, single-instance circuit-breaking core."
+description = "Curated entrypoint for Sigorta: a thin, sans-I/O circuit-breaking core you compose."
 publish = true
 
 [dependencies]
+sigorta-contract.workspace = true
