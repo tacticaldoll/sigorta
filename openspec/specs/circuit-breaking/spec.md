@@ -76,12 +76,12 @@ than extending the same one forever.
 - **THEN** the resulting `Sigorta` SHALL transition to open, recording a new
   eligible-again moment as `now` plus the configured open duration
 
-#### Scenario: Admission during an outstanding probe still within its window
+#### Scenario: Admission during an outstanding probe still within its window is rejected
 - **WHEN** a `Sigorta` in the half-open state processes an admission check with `now`
   before the outstanding probe's bound
-- **THEN** the decision SHALL be `Probing` again, carrying the state unchanged, since
-  exactly one trial probe remains outstanding until its outcome is recorded or its
-  bound passes
+- **THEN** the decision SHALL be `Rejected` with `retry_after` equal to the remaining
+  duration until that bound, since exactly one trial probe remains outstanding and no
+  other caller may be admitted until it resolves or its bound passes
 
 #### Scenario: A stale outstanding probe is replaced with a fresh one
 - **WHEN** a `Sigorta` in the half-open state processes an admission check with `now`

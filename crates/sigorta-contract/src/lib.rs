@@ -101,7 +101,12 @@ impl Sigorta {
             }
             State::HalfOpen { probe_expires } => {
                 if now < probe_expires {
-                    Decision::Probing(self)
+                    // A probe is already outstanding and still within its window:
+                    // reject every other caller until it resolves or expires.
+                    Decision::Rejected {
+                        retry_after: probe_expires - now,
+                        core: self,
+                    }
                 } else {
                     // The outstanding probe never reported back within its window:
                     // replace it with a fresh one rather than wedging this breaker

@@ -139,7 +139,7 @@ fn failed_probe_reopens_the_breaker() {
 }
 
 #[test]
-fn admission_during_an_outstanding_probe_still_within_window_probes_again() {
+fn admission_during_an_outstanding_probe_still_within_window_is_rejected() {
     let (breaker, t0) = threshold_2_cooldown_10s();
     let breaker = breaker
         .record(Event::Failure, t0)
@@ -149,10 +149,14 @@ fn admission_during_an_outstanding_probe_still_within_window_probes_again() {
     };
     assert!(breaker.is_half_open());
 
-    // Probe issued at t0+10s with a 10s window: still live at t0+11s.
+    // Probe issued at t0+10s with a 10s window (expiring at t0+20s): a second
+    // caller at t0+11s must be rejected, not admitted as a second probe.
     match breaker.admit(t0 + Duration::from_secs(11)) {
-        Decision::Probing(after) => assert!(after.is_half_open()),
-        other => panic!("expected Probing again, got {other:?}"),
+        Decision::Rejected { core, retry_after } => {
+            assert!(core.is_half_open());
+            assert_eq!(retry_after, Duration::from_secs(9));
+        }
+        other => panic!("expected Rejected, got {other:?}"),
     }
 }
 
@@ -179,11 +183,15 @@ fn a_stale_outstanding_probe_is_replaced_with_a_fresh_one() {
     };
 
     // The fresh probe's own window is renewed from t0+20s, not the original t0+10s:
-    // it must still be live at t0+29s (10s after being renewed, one second short of
-    // its own 10s window), not treated as stale again already.
+    // a caller at t0+29s (one second short of the renewed 10s window) must be
+    // rejected, exactly like any other caller during an outstanding, live probe —
+    // not treated as stale again already.
     match breaker.admit(t0 + Duration::from_secs(29)) {
-        Decision::Probing(after) => assert!(after.is_half_open()),
-        other => panic!("the renewed probe's own window must still be live, got {other:?}"),
+        Decision::Rejected { core, retry_after } => {
+            assert!(core.is_half_open());
+            assert_eq!(retry_after, Duration::from_secs(1));
+        }
+        other => panic!("the renewed probe's own window must still reject, got {other:?}"),
     }
 }
 
