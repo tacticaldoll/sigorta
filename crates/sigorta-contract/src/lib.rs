@@ -17,8 +17,10 @@ enum State {
     Closed { failures: u32 },
     /// Rejecting every attempt until `eligible_again_at`.
     Open { eligible_again_at: Instant },
-    /// Exactly one trial probe outstanding.
-    HalfOpen,
+    /// Exactly one trial probe outstanding, until `probe_expires`. A probe that
+    /// never reports back by then is replaced with a fresh one rather than left to
+    /// wedge the breaker in this state forever.
+    HalfOpen { probe_expires: Instant },
 }
 
 /// A caller-judged outcome of one admitted attempt.
@@ -84,7 +86,9 @@ impl Sigorta {
             State::Open { eligible_again_at } => {
                 if now >= eligible_again_at {
                     let probing = Self {
-                        state: State::HalfOpen,
+                        state: State::HalfOpen {
+                            probe_expires: now + self.open_duration,
+                        },
                         ..self
                     };
                     Decision::Probing(probing)
@@ -95,7 +99,22 @@ impl Sigorta {
                     }
                 }
             }
-            State::HalfOpen => Decision::Probing(self),
+            State::HalfOpen { probe_expires } => {
+                if now < probe_expires {
+                    Decision::Probing(self)
+                } else {
+                    // The outstanding probe never reported back within its window:
+                    // replace it with a fresh one rather than wedging this breaker
+                    // in HalfOpen forever.
+                    let renewed = Self {
+                        state: State::HalfOpen {
+                            probe_expires: now + self.open_duration,
+                        },
+                        ..self
+                    };
+                    Decision::Probing(renewed)
+                }
+            }
         }
     }
 
@@ -130,7 +149,7 @@ impl Sigorta {
                 }
             },
             State::Open { .. } => self,
-            State::HalfOpen => match event {
+            State::HalfOpen { .. } => match event {
                 Event::Success => Self {
                     state: State::Closed { failures: 0 },
                     ..self
@@ -160,6 +179,6 @@ impl Sigorta {
     /// Whether this breaker currently has one outstanding trial probe.
     #[must_use]
     pub const fn is_half_open(&self) -> bool {
-        matches!(self.state, State::HalfOpen)
+        matches!(self.state, State::HalfOpen { .. })
     }
 }
