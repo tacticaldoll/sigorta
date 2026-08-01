@@ -20,8 +20,10 @@ authoritative contributor and agent guide; this file is a short checklist.
 4. Sync verified semantics:
    - promote verified delta specs into `openspec/specs/`
    - delete the completed change directory in the same commit — see
-     `docs/adr/0003-sync-means-delete-not-archive.md`
+     `BACKLOG.md`'s Settled Decisions
    - commit as `docs(specs): sync <change-name>`
+5. Open the pull request only now, once propose, apply, and sync are all already
+   committed on the branch — see `BACKLOG.md`'s Settled Decisions.
 
 ## Commit Granularity
 
