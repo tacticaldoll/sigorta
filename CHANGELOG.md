@@ -10,6 +10,21 @@ cross-checked against the actual commit history rather than written from memory.
 version heading must have a matching `[X.Y.Z]: <url>` footer link — `scripts/changelog-guard.sh`
 checks this mechanically.
 
+## [0.1.1] - 2026-08-01
+
+Behavior correction, no public API changes. Attempting a real adoption (replacing a
+consumer application's hand-rolled circuit breaker with `sigorta`) surfaced a real
+gap the original distillation had dropped as unnecessary complexity.
+
+### Fixed
+
+- A single outstanding half-open trial probe no longer waits forever for its outcome
+  to be recorded. Once it has been outstanding longer than the configured open
+  duration, the next admission check now replaces it with a fresh probe rather than
+  extending the same one indefinitely — matching the real-world evidence this
+  project was distilled from, which bounds a probe's lifetime the same way and
+  reuses the same duration for both the cooldown and the probe window.
+
 ## [0.1.0] - 2026-08-01
 
 Initial release: a sans-I/O, single-instance circuit-breaking core, evidenced by a
@@ -37,4 +52,5 @@ this family's usual Tier 1 definition, recorded as a considered choice.
 - 9 unit tests covering every scenario in `openspec/specs/circuit-breaking/spec.md`,
   and a dependency-free dogfood example (`keyed_by_job_kind.rs`).
 
+[0.1.1]: https://github.com/tacticaldoll/sigorta/releases/tag/v0.1.1
 [0.1.0]: https://github.com/tacticaldoll/sigorta/releases/tag/v0.1.0

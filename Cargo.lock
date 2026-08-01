@@ -109,18 +109,18 @@ dependencies = [
 
 [[package]]
 name = "sigorta"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "sigorta-contract",
 ]
 
 [[package]]
 name = "sigorta-contract"
-version = "0.1.0"
+version = "0.1.1"
 
 [[package]]
 name = "sigorta-governance"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "tianheng",
 ]
