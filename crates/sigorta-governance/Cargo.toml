@@ -1,0 +1,10 @@
+[package]
+name = "sigorta-governance"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Executable architectural governance for the Sigorta workspace (tianheng constitution)."
+publish = false
+
+[dependencies]
+tianheng.workspace = true
