@@ -21,6 +21,17 @@ jobs:
       - name: changelog footer links
         run: ./scripts/changelog-guard.sh
 
+  # sigorta-governance is excluded: it is a publish=false dev tool, not part of
+  # the published-crate MSRV contract.
+  msrv:
+    name: MSRV (1.85)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.85.0
+      - name: Check
+        run: cargo check --workspace --exclude sigorta-governance --all-targets
+
   supply-chain:
     name: Supply chain (cargo-deny)
     runs-on: ubuntu-latest
