@@ -10,6 +10,21 @@ cross-checked against the actual commit history rather than written from memory.
 version heading must have a matching `[X.Y.Z]: <url>` footer link — `scripts/changelog-guard.sh`
 checks this mechanically.
 
+## [0.1.2] - 2026-08-01
+
+Correctness fix, no public API changes. Adopting `sigorta` into the real consumer
+application it was distilled from surfaced a genuine bug, not a missing feature.
+
+### Fixed
+
+- A half-open trial probe that is still outstanding and within its window now
+  correctly rejects every other admission check (with `retry_after` equal to the
+  remaining time until the probe's bound), instead of admitting every check as
+  `Probing`. Only once that window passes with no recorded outcome is a fresh probe
+  admitted. This inverted condition dated back to the initial release, not a `0.1.1`
+  regression — `0.1.1` added the bound correctly but never actually rejected anyone
+  within it.
+
 ## [0.1.1] - 2026-08-01
 
 Behavior correction, no public API changes. Attempting a real adoption (replacing a
@@ -52,5 +67,6 @@ this family's usual Tier 1 definition, recorded as a considered choice.
 - 9 unit tests covering every scenario in `openspec/specs/circuit-breaking/spec.md`,
   and a dependency-free dogfood example (`keyed_by_job_kind.rs`).
 
+[0.1.2]: https://github.com/tacticaldoll/sigorta/releases/tag/v0.1.2
 [0.1.1]: https://github.com/tacticaldoll/sigorta/releases/tag/v0.1.1
 [0.1.0]: https://github.com/tacticaldoll/sigorta/releases/tag/v0.1.0
