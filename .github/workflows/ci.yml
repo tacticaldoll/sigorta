@@ -1,0 +1,50 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  dod:
+    name: Definition of Done
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: check whether a real crate exists yet
+        id: crate
+        run: |
+          if grep -qx 'members = \[\]' Cargo.toml; then
+            echo "Workspace has no members yet -- Rust commands are not yet meaningful (see PROJECT.md)."
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: build / test / clippy / fmt / doc
+        if: steps.crate.outputs.exists == 'true'
+        run: |
+          cargo build --workspace
+          cargo test --workspace
+          cargo clippy --workspace --all-targets -- -D warnings
+          cargo fmt --all --check
+          RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps
+      - name: changelog footer links
+        run: ./scripts/changelog-guard.sh
+
+  supply-chain:
+    name: Supply chain (cargo-deny)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: check whether a real crate exists yet
+        id: crate
+        run: |
+          if grep -qx 'members = \[\]' Cargo.toml; then
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: license / advisory / bans / sources policy
+        if: steps.crate.outputs.exists == 'true'
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check
