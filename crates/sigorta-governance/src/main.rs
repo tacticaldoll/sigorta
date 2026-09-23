@@ -7,18 +7,21 @@ use std::{env, process::ExitCode};
 use tianheng::prelude::*;
 
 const CONTRACT_REASON: &str = "sigorta-contract is the isolated core contract: a sans-I/O, \
-single-instance circuit-breaking state machine. It needs no dependency at all, so it may \
-depend on nothing.";
-const FACADE_REASON: &str = "sigorta is the curated public entrypoint: a pure re-export facade \
-with no logic of its own. It must depend on sigorta-contract only, never acquiring a dependency \
-the core itself does not have.";
+single-instance circuit-breaking state machine. It needs no dependency at all, so it declares no \
+normal dependency.";
+const FACADE_REASON: &str = "sigorta is the curated public entrypoint: its normal dependencies \
+are sigorta-contract alone, never a normal dependency the core itself does not have. That the \
+facade holds no logic of its own is review-governed, not observed here.";
 const GOVERNANCE_REASON: &str = "the governance gate must stay independent of the workspace \
-graph it judges: it may depend only on tianheng, never on sigorta-contract or any other \
+graph it judges: its normal dependencies are tianheng alone, never sigorta-contract or any other \
 workspace crate under judgment.";
-const NO_AMBIENT_CLOCK_REASON: &str = "the sans-I/O core reads no wall clock: every transition \
-takes now: Instant as an explicit argument. A call to std::time::Instant::now or \
-std::time::SystemTime::now anywhere in sigorta-contract is exactly the impurity this \
-repository's real-world evidence had, and this project exists to remove it.";
+const NO_AMBIENT_CLOCK_REASON: &str = "sigorta-contract's library makes no inline `std::time` \
+`now` call, such as std::time::Instant::now or std::time::SystemTime::now, in any of its \
+modules: every transition takes now: Instant as an explicit argument, because an ambient clock \
+read is exactly the impurity this repository's real-world evidence had, and this project exists \
+to remove it. Coverage is partial by nature (a clock read through a method on a value, such as \
+`Instant::elapsed`, or a `now` path taken as a value rather than called, is invisible to a \
+source scan), so this tooth complements review rather than replacing it.";
 
 fn constitution() -> Constitution {
     Constitution::new("sigorta")
