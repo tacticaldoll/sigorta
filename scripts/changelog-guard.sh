@@ -1,33 +1,41 @@
-#!/bin/bash
-# Mechanizes CHANGELOG.md's footer-link discipline: every `## [X.Y.Z]` version heading must have
-# a matching `[X.Y.Z]: <url>` footer link, so a reader (or a CI job) can always click through from
-# a version to its release. Modeled on pacta's own `pacta-governance` changelog-footer-link
-# reaction, kept dependency-free here since this template has no governance crate of its own yet.
+#!/usr/bin/env bash
+# Changelog ledger guard (see AGENTS.md, Commit And Integration Governance > Changelog).
+#
+# CHANGELOG.md is a strict release ledger: it carries no Unreleased section, and every
+# `## [X.Y.Z]` version heading has a matching `[X.Y.Z]: https://github.com/<owner>/<repo>/releases/tag/vX.Y.Z`
+# footer link, so a reader can always click through from a version to its release.
 set -euo pipefail
+cd "$(dirname "$0")/.."
 
 file="CHANGELOG.md"
 if [ ! -f "$file" ]; then
-  echo "changelog-guard: no CHANGELOG.md found, nothing to check"
-  exit 0
+  echo "changelog-guard: CHANGELOG.md is missing" >&2
+  exit 1
 fi
 
-headings=$(grep -oE '^## \[[0-9]+\.[0-9]+\.[0-9]+\]' "$file" | sed -E 's/^## \[(.*)\]$/\1/' || true)
+if grep -qiE '^## \[?unreleased\]?' "$file"; then
+  echo "changelog-guard: CHANGELOG.md is a release ledger and must not carry an Unreleased section" >&2
+  exit 1
+fi
+
+headings=$(grep -oE '^## \[[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?\]' "$file" | sed -E 's/^## \[(.*)\]$/\1/' || true)
 
 if [ -z "$headings" ]; then
-  echo "changelog-guard: no version headings yet, nothing to check"
+  echo "changelog-guard: clean — no version headings yet"
   exit 0
 fi
 
 missing=0
 while IFS= read -r version; do
-  if ! grep -qE "^\[${version//./\\.}\]: " "$file"; then
-    echo "changelog-guard: version heading [$version] has no matching footer link"
+  escaped=${version//./\\.}
+  if ! grep -qE "^\[${escaped}\]: https://github\.com/[^/ ]+/[^/ ]+/releases/tag/v${escaped}$" "$file"; then
+    echo "changelog-guard: version heading [$version] has no footer link to its releases/tag/v$version" >&2
     missing=1
   fi
 done <<< "$headings"
 
 if [ "$missing" -ne 0 ]; then
-  echo "changelog-guard: FAILED — add a [X.Y.Z]: <url> footer line for every version heading"
+  echo "changelog-guard: FAILED — add a [X.Y.Z]: .../releases/tag/vX.Y.Z footer line for every version heading" >&2
   exit 1
 fi
 
