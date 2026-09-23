@@ -10,3 +10,11 @@ Unpublished — this gate has no reason to exist outside this workspace's own CI
 ```bash
 cargo run -p sigorta-governance -- check --manifest-path Cargo.toml
 ```
+
+The accepted constitution is projected into `AGENTS.sigorta-law.md` at the repository root, a
+generated file that `law_projection_is_fresh` byte-checks. Regenerate it after a deliberate,
+reviewed law change:
+
+```bash
+BLESS=1 cargo test -p sigorta-governance law_projection_is_fresh
+```
