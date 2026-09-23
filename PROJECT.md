@@ -65,3 +65,4 @@ enables it. Keep enabling contract changes separate and small.
 - `openspec/specs/circuit-breaking/spec.md` — the full circuit-breaking specification.
 - `docs/domain-language.md` — the state vocabulary and naming decisions.
 - `BACKLOG.md` — settled and deferred decisions.
+- `AGENTS.sigorta-law.md` — the generated projection of the accepted constitution.
