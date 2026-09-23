@@ -5,12 +5,11 @@ members = ["crates/sigorta-contract", "crates/sigorta", "crates/sigorta-governan
 [workspace.package]
 version = "0.1.3"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.88"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/tacticaldoll/sigorta"
 keywords = ["circuit-breaker", "sans-io", "state-machine", "resilience"]
 categories = ["rust-patterns"]
-publish = false
 
 [workspace.dependencies]
 tianheng = "0.3.0"

@@ -12,8 +12,8 @@ own development. Shipped truth lives in `openspec/specs/`; active proposed truth
   provenance trail — no separate architecture-decision-record file class. The
   template's three ADRs had already drifted into duplicating content that belongs in
   `AGENTS.md`: ADR 0003's content ("sync means delete, not archive") is already stated
-  in `AGENTS.md`'s Workflow section; ADR 0002's Decision ("use OpenSpec as the source
-  of truth") is already stated more fully by `AGENTS.md`'s "This Project Uses OpenSpec"
+  in `AGENTS.md`'s OpenSpec Workflow section; ADR 0002's Decision ("use OpenSpec as the source
+  of truth") is already stated more fully by `AGENTS.md`'s OpenSpec Workflow
   section — its Context is the one part worth preserving here: chat history and
   agent-specific command shims are not a reliable source of truth for AI-assisted
   development, which is why this project's actual behavior lives in `openspec/specs/`

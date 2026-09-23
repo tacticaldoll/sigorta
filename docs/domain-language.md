@@ -10,6 +10,16 @@ Greek for "mouth, opening" — a metaphor rather than a literal match — until 
 `stoma` crate name was found already taken on crates.io by an unrelated crate before
 any publish happened. See `BACKLOG.md`'s Settled Decisions for the full account.)
 
+## Terminology
+
+- `Sigorta` — one breaker's configuration and state.
+- `Closed` / `Open` / `HalfOpen` — the three states (see below for why these industry-standard
+  names were kept rather than replaced with a themed register).
+- `Event` — a caller-judged outcome of one admitted attempt (`Success` or `Failure`).
+- `Decision` — the result of an admission check: `Admitted`, `Probing`, or `Rejected`.
+- `Probing` — an admission granted as the one outstanding trial after a cooldown
+  elapses, distinguished from a normal `Admitted` so the caller can treat it cautiously.
+
 ## Internal state vocabulary
 
 Sigorta's public state vocabulary is `Closed`, `Open`, and `HalfOpen` — the

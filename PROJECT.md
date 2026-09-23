@@ -2,12 +2,15 @@
 
 Keep this short and concrete; it is the orientation layer for humans and AI agents.
 
-## Purpose
+## Vision
 
 Sigorta is a thin, sans-I/O circuit-breaking core. Given an explicit clock reading and a
 caller-judged stream of success/failure events, it adjudicates whether to admit an
-attempt, admit it as a trial probe, or reject it with a retry-after duration. It owns
-exactly one breaker's state at a time; it does not own a keyed collection of many
+attempt, admit it as a trial probe, or reject it with a retry-after duration.
+
+## Product Positioning
+
+Sigorta owns exactly one breaker's state at a time; it does not own a keyed collection of many
 breakers, the system clock, or judgment about what counts as success or failure.
 
 ## Core Contract
@@ -27,13 +30,16 @@ The behavior that must be protected first:
 
 ## Terminology
 
-- `Sigorta` — one breaker's configuration and state.
-- `Closed` / `Open` / `HalfOpen` — the three states (see `docs/naming.md` for why these
-  industry-standard names were kept rather than replaced with a themed register).
-- `Event` — a caller-judged outcome of one admitted attempt (`Success` or `Failure`).
-- `Decision` — the result of an admission check: `Admitted`, `Probing`, or `Rejected`.
-- `Probing` — an admission granted as the one outstanding trial after a cooldown
-  elapses, distinguished from a normal `Admitted` so the caller can treat it cautiously.
+`docs/domain-language.md` is the canonical vocabulary, including the terms `Sigorta`, `Closed`,
+`Open`, `HalfOpen`, `Event`, `Decision`, and `Probing`.
+
+## Non-Goals
+
+This repository is intentionally narrow:
+
+- Sigorta is not a worker runtime, a retry framework, or an orchestration platform.
+- Keyed multi-instance management, the system clock, and integration with any real caller are
+  the caller's concern, never the core's identity.
 
 ## First Project Change
 
@@ -53,3 +59,9 @@ earliest:
 
 Do not add scale-out or integration scope merely because a correctness change
 enables it. Keep enabling contract changes separate and small.
+
+## References
+
+- `openspec/specs/circuit-breaking/spec.md` — the full circuit-breaking specification.
+- `docs/domain-language.md` — the state vocabulary and naming decisions.
+- `BACKLOG.md` — settled and deferred decisions.
