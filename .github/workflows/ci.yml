@@ -20,6 +20,8 @@ jobs:
           cargo run --example keyed_by_job_kind -p sigorta-contract
       - name: changelog ledger
         run: ./scripts/changelog-guard.sh
+      - name: openspec specs and changes
+        run: npx -y @fission-ai/openspec@1.13.2 validate --all --strict --no-interactive
 
   msrv:
     name: MSRV (1.88)

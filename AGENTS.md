@@ -266,14 +266,15 @@ cargo deny check
 cargo run -p sigorta-governance -- check --manifest-path Cargo.toml
 cargo run --example keyed_by_job_kind -p sigorta-contract
 ./scripts/changelog-guard.sh
+npx -y @fission-ai/openspec@1.13.2 validate --all --strict --no-interactive
 cargo +1.88 build --workspace
 cargo +1.85 check --workspace --exclude sigorta-governance --all-targets
 ```
 
 CI (`.github/workflows/ci.yml`) runs the same gates on push and pull request. Rust style lives in
 these checks: rustfmt formats, clippy denies warnings, rustdoc denies documentation warnings,
-cargo-deny owns resolved supply-chain policy, and `sigorta-governance` owns Tianheng architecture
-boundaries. The crates exist, so every command is meaningful from the workspace root.
+cargo-deny owns resolved supply-chain policy, `sigorta-governance` owns Tianheng architecture
+boundaries, and the pinned OpenSpec CLI validates the specs and any active change. The crates exist, so every command is meaningful from the workspace root.
 
 Two gates are Sigorta's own. `keyed_by_job_kind` is the dependency-free dogfood example: it shows
 a caller keeping many breakers while the core owns exactly one. The `+1.85` check holds the
