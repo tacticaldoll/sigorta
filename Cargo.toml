@@ -12,5 +12,5 @@ keywords = ["circuit-breaker", "sans-io", "state-machine", "resilience"]
 categories = ["rust-patterns"]
 
 [workspace.dependencies]
-tianheng = "0.6.1"
+tianheng = "0.7.0"
 sigorta-contract = { path = "crates/sigorta-contract", version = "0.1.3" }
